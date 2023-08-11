@@ -1,0 +1,56 @@
+
+
+spring:
+  application:
+    name: order-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/orders
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+    consumer:
+      value-deserializer: com.lql.orderservice.converter.MyConverter
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      group-id: group2
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:password@localhost:8761/eureka
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory:
+        registerHealthIndicator: true
+        ringBufferSizeInClosedState: 50
+        ringBufferSizeInHalfOpenState: 10
+        failureRateThreshold: 70
+        waitDurationInOpenState: 5000
+        automaticTransitionFromOpenToHalfOpenEnabled: true
